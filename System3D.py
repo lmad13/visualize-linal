@@ -1,4 +1,4 @@
-#This class is helpful for visualizing the linear algebra operations that I'm performing on my walkers. This might be usable for both the trimer and tetramer.
+#This class was made to visualizing the linear algebra operations that I'm performing on my walkers. This is usable for both the tetramer only!
 
 
 import numpy as np
@@ -30,41 +30,38 @@ class System(object):
     
     #Functions for adding of elements to the system
     def addAtom(self,Name,x,y,z):
-        self.functAddList.append(self.renderAtom)
+        self.functAddList.append(self._renderAtom)
         self.paramAddList.append([Name,x,y,z])        
 
     def addMolecule(self,Names,pos,bonding):
         for n,coord in zip(Names,pos):
             self.addAtom(n,coord[0],coord[1],coord[2])
         print 'added Molecule'
-        verts=[]
-        zs=[]
         for pair in bonding:
             self.addBond(pos[pair[0]],pos[pair[1]])
 
     def addBond(self,atomStart, atomEnd):
-        self.functAddList.append(self.renderBond)
+        self.functAddList.append(self._renderBond)
         self.paramAddList.append([atomStart, atomEnd])
 
     def addHCartDispAxesVects(self,pos,moleculeName):
-        self.functAddList.append(self.renderCartDispAxesVects)
+        self.functAddList.append(self._renderCartDispAxesVects)
         self.paramAddList.append([pos,moleculeName])
 
 
     #Functions for rendering the atoms/bonds/vectors
-    def renderAtom(self,args):
+    def _renderAtom(self,args):
         [Name, x, y, z] = args
         self.ax.scatter(x,y,z,c=self.colordict[Name], s=100)
-    def renderBond(self,args):
+
+    def _renderBond(self,args):
         [atomStart,atomEnd]=args
         self.ax.plot([atomStart[0],atomEnd[0]],[atomStart[1],atomEnd[1]],[atomStart[2],atomEnd[2]],color='k')
 
-    
-    def renderCartDispAxesVects(self,args):
-        #adds xyz coordinates at the center point (c) between solvating a O and the central O 
+    def _renderCartDispAxesVects(self,args):
+        #adds xyz coordinates at the center point (c) between a solvating O and the central O 
         #adds a black displacement vector pointing between c and the shared proton
         #adds thicker xyz component vectors corresponding to the black displacement vector
-
         [pos,moleculeName]=args
         if moleculeName=='tetramer':
             #If the order of your atoms is different than the Madison Version, the reordering should happen here.
@@ -72,7 +69,7 @@ class System(object):
             O2=pos[1]
             O3=pos[2]
             OC=pos[3]  #central oxygen 
-            H1=pos[12]  #omg
+            H1=pos[12]  #omg, this is inane 
             H2=pos[10]
             H3=pos[11]
                     
@@ -94,6 +91,7 @@ class System(object):
             Z1prime=normal1/np.linalg.norm(normal1)
             Z2prime=normal2/np.linalg.norm(normal2)
             Z3prime=normal3/np.linalg.norm(normal3)
+
             Y1prime=np.cross(Z1prime,X1prime)  #in the plane of the O_c-O_b-O_a planes
             Y2prime=np.cross(Z2prime,X2prime)
             Y3prime=np.cross(Z3prime,X3prime)
@@ -137,7 +135,9 @@ class System(object):
             for atomC,atomH in zip([c1,c2,c3],[H1,H2,H3]):
                 coords=zip(atomC,atomH)
                 self.ax.plot(coords[0],coords[1],coords[2], linewidth=3.0,color='k')
-
+        else:
+            print 'Not implemented for molecules besides the tetramer!'
+            
 
     #Functions related to displaying or resetting the plotting environment
 
@@ -150,14 +150,11 @@ class System(object):
 
 
     def resetFig(self):
-        #Resets the plotting environment
         self.fig = plt.figure()
         self.ax=self.fig.gca(projection='3d')
 
     def resetSys(self):
-        #Resets the plotting environment AND the list of atoms/bond/vectors 
-        self.fig = plt.figure()
-        self.ax=self.fig.gca(projection='3d')
+        self.resetFig()
         self.functAddList=[]
         self.paramAddList=[]
         print 'reset Figure'
@@ -175,7 +172,7 @@ class System(object):
 
         f=open(fileName, 'r')
         for j in range(10):
-            f.readline()# Natoms
+            f.readline()#Natoms
             f.readline() #Comments
             for a in range(nAtoms):
                 data=f.readline().split()
