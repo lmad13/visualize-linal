@@ -33,6 +33,5 @@ for Names, pos in zip(NameArray, posArray):
     system.addHCartDispAxesVects(pos,'tetramer')
     print 'added H cart Displacement'
     system.display()
-    system.resetFig()
-
-
+    system.resetSys()
+    
